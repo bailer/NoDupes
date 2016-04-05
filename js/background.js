@@ -11,9 +11,8 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
   };
   chrome.downloads.search(searchFilter, function (downloadItems) {
     if (downloadItems.length > 0) {
-      console.log(downloadItems);
+      chrome.downloads.pause(downloadItem.id);
       itemsByExistingId[downloadItems[0].id] = {exists: true};
-      console.log("Current item " + downloadItems[0].id + " exists: " + downloadItems[0].exists);
       chrome.notifications.create({
         type: "basic",
         iconUrl: "images/icon128.png",
@@ -31,6 +30,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
           itemsByExistingId[downloadItems[0].id] = {notificationId: notificationId, suggest: suggest};
         } else {
           chrome.notifications.clear(notificationId);
+          chrome.downloads.resume(downloadItem.id);
           suggest();
         }
       });
@@ -42,7 +42,6 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
 });
 
 chrome.downloads.onChanged.addListener(function (downloadDelta) {
-  console.log(downloadDelta);
   if (itemsByExistingId[downloadDelta.id]) {
     if (downloadDelta.exists && downloadDelta.exists.previous === true && downloadDelta.exists.current === false) {
       itemsByExistingId[downloadDelta.id] = {exists: false};
@@ -52,7 +51,6 @@ chrome.downloads.onChanged.addListener(function (downloadDelta) {
 
 chrome.notifications.onClosed.addListener(function (notificationId, byUser) {
   if (itemsByNotificationId[notificationId]) {
-    console.log(itemsByNotificationId[notificationId]);
     chrome.downloads.cancel(itemsByNotificationId[notificationId].downloadItem.id);
     chrome.downloads.erase({id: itemsByNotificationId[notificationId].downloadItem.id});
     delete itemsByExistingId[itemsByNotificationId[notificationId].foundItem.id];
@@ -69,6 +67,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
       chrome.downloads.open(itemsByNotificationId[notificationId].foundItem.id);
     } else if (buttonIndex === 1) {
       chrome.notifications.clear(notificationId);
+      chrome.downloads.resume(itemsByNotificationId[notificationId].downloadItem.id);
       itemsByNotificationId[notificationId].suggest();
     }
     delete itemsByExistingId[itemsByNotificationId[notificationId].foundItem.id];
