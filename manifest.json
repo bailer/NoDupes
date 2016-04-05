@@ -3,7 +3,7 @@
     "icons": {
         "128": "images/icon128.png",
         "48": "images/icon48.png",
-        "16": "images/icon16.png",
+        "16": "images/icon16.png"
     },
     "background": {
         "scripts": [
@@ -22,5 +22,5 @@
     "content_security_policy": "script-src 'self'; object-src 'self'",
     "name": "NoDupes",
     "version": "1.0",
-    "description": "Avoid downloading the same file more than once!"
+    "description": "Avoid downloading files you already have!"
 }
