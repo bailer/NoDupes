@@ -16,7 +16,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
       console.log("Current item " + downloadItems[0].id + " exists: " + downloadItems[0].exists);
       chrome.notifications.create({
         type: "basic",
-        iconUrl: "images/icon.png",
+        iconUrl: "images/icon128.png",
         title: "File already exists",
         message: "It seems like the file " + downloadItem.filename + " already exists",
         contextMessage: "Click to show the file",
@@ -26,12 +26,10 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
           {title: "Download anyway", iconUrl: "images/download.png"}
         ]
       }, function (notificationId) {
-        console.log("created notification with id " + notificationId);
         if (itemsByExistingId[downloadItems[0].id].exists) {
           itemsByNotificationId[notificationId] = {foundItem: downloadItems[0], downloadItem: downloadItem, suggest: suggest};
           itemsByExistingId[downloadItems[0].id] = {notificationId: notificationId, suggest: suggest};
         } else {
-          console.log("doesnt exist anymore");
           chrome.notifications.clear(notificationId);
           suggest();
         }
@@ -45,9 +43,8 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
 
 chrome.downloads.onChanged.addListener(function (downloadDelta) {
   console.log(downloadDelta);
-  if (downloadDelta.exists && downloadDelta.exists.previous === true && downloadDelta.exists.current === false) {
-    console.log("a file was removed");
-    if (itemsByExistingId[downloadDelta.id]) {
+  if (itemsByExistingId[downloadDelta.id]) {
+    if (downloadDelta.exists && downloadDelta.exists.previous === true && downloadDelta.exists.current === false) {
       itemsByExistingId[downloadDelta.id] = {exists: false};
     }
   }
@@ -56,12 +53,8 @@ chrome.downloads.onChanged.addListener(function (downloadDelta) {
 chrome.notifications.onClosed.addListener(function (notificationId, byUser) {
   if (itemsByNotificationId[notificationId]) {
     console.log(itemsByNotificationId[notificationId]);
-    // if (byUser) {
-      chrome.downloads.cancel(itemsByNotificationId[notificationId].downloadItem.id);
-      chrome.downloads.erase({id: itemsByNotificationId[notificationId].downloadItem.id});
-    // } else {
-      // itemsByNotificationId[notificationId].suggest();
-    // }
+    chrome.downloads.cancel(itemsByNotificationId[notificationId].downloadItem.id);
+    chrome.downloads.erase({id: itemsByNotificationId[notificationId].downloadItem.id});
     delete itemsByExistingId[itemsByNotificationId[notificationId].foundItem.id];
     delete itemsByNotificationId[notificationId];
   }
