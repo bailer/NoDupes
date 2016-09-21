@@ -5,38 +5,41 @@ var searchedItems = {};
 chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, suggest) {
   var searchFilter = {
     state: "complete",
-    fileSize: downloadItem.fileSize,
     exists: true, 
-    filenameRegex: downloadItem.filename
+    query: [downloadItem.filename]
   };
   chrome.downloads.search(searchFilter, function (downloadItems) {
-    if (downloadItems.length > 0) {
-      chrome.downloads.pause(downloadItem.id);
-      itemsByExistingId[downloadItems[0].id] = {exists: true};
-      chrome.notifications.create({
-        type: "basic",
-        iconUrl: "images/icon128.png",
-        title: "File already exists",
-        message: "It seems like the file " + downloadItem.filename + " already exists",
-        contextMessage: "Click to show the file",
-        isClickable: true,
-        buttons: [
-          {title: "Open existing file", iconUrl: "images/open.png"},
-          {title: "Download anyway", iconUrl: "images/download.png"}
-        ]
-      }, function (notificationId) {
-        if (itemsByExistingId[downloadItems[0].id].exists) {
-          itemsByNotificationId[notificationId] = {foundItem: downloadItems[0], downloadItem: downloadItem, suggest: suggest};
-          itemsByExistingId[downloadItems[0].id] = {notificationId: notificationId, suggest: suggest};
-        } else {
-          chrome.notifications.clear(notificationId);
-          chrome.downloads.resume(downloadItem.id);
-          suggest();
+    bkg.console.log(downloadItems);
+    var foundFile = false;
+      for (i = 0; i <  downloadItems.length; i++) {
+        if (downloadItems[i].fileSize == downloadItem.fileSize) {
+          foundFile = true;
+          chrome.downloads.pause(downloadItem.id);
+          itemsByExistingId[downloadItems[i].id] = {exists: true};
+          chrome.notifications.create({
+            type: "basic",
+            iconUrl: "images/icon128.png",
+            title: "File already exists",
+            message: "It seems like the file " + downloadItem.filename + " already exists",
+            contextMessage: "Click to show the file",
+            isClickable: true,
+            buttons: [{title: "Open existing file", iconUrl: "images/open.png"},{title: "Download anyway", iconUrl: "images/download.png"}]
+          }, function (notificationId) {
+            if (itemsByExistingId[downloadItems[i].id].exists) {
+              itemsByNotificationId[notificationId] = {foundItem: downloadItems[i], downloadItem: downloadItem, suggest: suggest};
+              itemsByExistingId[downloadItems[i].id] = {notificationId: notificationId, suggest: suggest};
+            } else {
+              chrome.notifications.clear(notificationId);
+              chrome.downloads.resume(downloadItem.id);
+              suggest();
+            }
+          });
+          break;
         }
-      });
-    } else {
-      suggest();
-    }
+      }
+      if (!foundFile) {
+        suggest();
+      }
   });
   return true;
 });
