@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "icons": {
         "128": "images/icon128.png",
         "48": "images/icon48.png",
@@ -20,7 +20,8 @@
         "images/*"
     ],
     "content_security_policy": "script-src 'self'; object-src 'self'",
-    "name": "NoDupes",
-    "version": "1.1",
-    "description": "Avoid downloading files you already have!"
+    "name": "No More Duplicates",
+    "short_name": "NoDupes",
+    "version": "1.2",
+    "description": "Avoid downloads of files you already have!"
 }
