@@ -9,10 +9,9 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
     query: [downloadItem.filename]
   };
   chrome.downloads.search(searchFilter, function (downloadItems) {
-    bkg.console.log(downloadItems);
     var foundFile = false;
       for (i = 0; i <  downloadItems.length; i++) {
-        if (downloadItems[i].fileSize == downloadItem.fileSize) {
+        if (downloadItems[i].fileSize == downloadItem.fileSize || (downloadItems[i].url == downloadItem.url && downloadItem.fileSize == 0)) {
           foundFile = true;
           chrome.downloads.pause(downloadItem.id);
           itemsByExistingId[downloadItems[i].id] = {exists: true};
