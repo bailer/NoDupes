@@ -18,11 +18,11 @@ chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, sugge
           chrome.notifications.create({
             type: "basic",
             iconUrl: "images/icon128.png",
-            title: "File already exists",
-            message: "It seems like the file " + downloadItem.filename + " already exists",
-            contextMessage: "Click to show the file",
+            title: chrome.i18n.getMessage("fileExistsTitle"),
+            message: chrome.i18n.getMessage("fileExistsMessage", downloadItem.filename),
+            contextMessage: chrome.i18n.getMessage("contextMessage"),
             isClickable: true,
-            buttons: [{title: "Open existing file", iconUrl: "images/open.png"},{title: "Download anyway", iconUrl: "images/download.png"}]
+            buttons: [{title: chrome.i18n.getMessage("btnOpenExistingFile"), iconUrl: "images/open.png"},{title: chrome.i18n.getMessage("btnDownloadAnyway"), iconUrl: "images/download.png"}]
           }, function (notificationId) {
             if (itemsByExistingId[downloadItems[i].id].exists) {
               itemsByNotificationId[notificationId] = {foundItem: downloadItems[i], downloadItem: downloadItem, suggest: suggest};
